@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Arka Plan: Uygulama ile uyumlu koyu gri -->
+  <rect width="512" height="512" rx="120" fill="#1e1e1e"/>
+  <!-- Sigara Gövdesi -->
+  <rect x="126" y="236" width="260" height="40" rx="8" fill="#ecf0f1"/>
+  <!-- Sigara Filtresi -->
+  <rect x="126" y="236" width="80" height="40" rx="8" fill="#d35400"/>
+  <!-- Yasak İşareti (Kırmızı Çember ve Çizgi) -->
+  <circle cx="256" cy="256" r="160" stroke="#e74c3c" stroke-width="40" fill="none"/>
+  <line x1="156" y1="156" x2="356" y2="356" stroke="#e74c3c" stroke-width="40" stroke-linecap="round"/>
+</svg>

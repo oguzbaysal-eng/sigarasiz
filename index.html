@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigara Tasarruf Takibi</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="theme-color" content="#1e1e1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #121212 0%, #2c3e50 100%); margin: 0; }
+        .container { background: #1e1e1e; padding: 2.5rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); text-align: center; width: 90%; max-width: 450px; border-top: 8px solid #4caf50; }
+        h2 { color: #ecf0f1; margin-bottom: 25px; font-size: 1.8rem; }
+        .stat-box { background: #2d2d2d; padding: 18px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; transition: transform 0.3s; }
+        .stat-box:hover { transform: translateY(-3px); }
+        .value { font-size: 1.8rem; font-weight: bold; color: #81c784; display: block; }
+        .money { color: #ff8a65; } /* Para birimi için farklı renk */
+        .label { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #b0bec5; font-weight: bold; }
+        
+        /* Flip Clock Görünümü */
+        .flip-clock { display: flex; justify-content: center; gap: 10px; margin-top: 10px; align-items: baseline; }
+        .flip-unit { display: flex; flex-direction: column; align-items: center; }
+        .flip-card { 
+            background: #37474f; color: #fff; font-size: 1.5rem; font-weight: bold; 
+            padding: 10px; border-radius: 8px; min-width: 45px; text-align: center; 
+            position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            font-family: 'Courier New', monospace;
+        }
+        .flip-card::after { /* Ortadaki çizgi efekti */
+            content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(0,0,0,0.3); box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .unit-label { font-size: 0.7rem; color: #90a4ae; margin-top: 5px; font-weight: bold; }
+        .motivational-note { font-style: italic; color: #78909c; margin-top: 20px; font-size: 0.9rem; }
+
+        /* Değerler için Flip Stili */
+        .flip-clock.value { gap: 4px; align-items: center; }
+        .flip-clock.value .flip-card {
+            font-size: 1.8rem;
+            background-color: #2e7d32; /* Varsayılan değer rengi */
+            min-width: 28px;
+            width: auto;
+            padding: 8px 6px;
+        }
+        .char-separator {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ecf0f1;
+            padding: 8px 0;
+        }
+        .unit-label-flipper {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #b0bec5;
+            padding: 8px 0 8px 5px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        /* Para için renk üzerine yazma */
+        .flip-clock.money .flip-card { background-color: #d84315; }
+        .flip-clock.money .char-separator { color: #ffab91; }
+        .flip-clock.money .unit-label-flipper { color: #ffab91; }
+
+        /* Ayarlar Butonu ve Modal */
+        .settings-btn {
+            background: transparent; border: 1px solid #78909c; color: #b0bec5;
+            padding: 8px 15px; border-radius: 20px; cursor: pointer; margin-top: 20px;
+            font-size: 0.9rem; transition: all 0.3s;
+        }
+        .settings-btn:hover { background: #37474f; color: white; border-color: white; }
+
+        .modal {
+            display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8); align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: #1e1e1e; padding: 20px; border-radius: 15px; width: 85%; max-width: 350px;
+            border: 1px solid #333; text-align: left;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; color: #b0bec5; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333;
+            background: #2d2d2d; color: white; font-size: 1rem; box-sizing: border-box;
+        }
+        .modal-actions { text-align: right; margin-top: 20px; }
+        .btn-save { background: #2e7d32; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+        .btn-cancel { background: #c62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-right: 10px; font-size: 1rem; }
+
+        /* Sağlık İlerlemesi */
+        .health-section { margin-top: 25px; text-align: left; border-top: 1px solid #333; padding-top: 15px; }
+        .health-title { color: #ecf0f1; font-size: 1.1rem; margin-bottom: 15px; text-align: center; font-weight: bold; }
+        .health-item { margin-bottom: 12px; }
+        .health-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: #b0bec5; margin-bottom: 4px; }
+        .progress-track { background: #37474f; height: 6px; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #4caf50; width: 0%; transition: width 1s linear; }
+        .health-item.completed .progress-fill { background: #81c784; }
+        .health-item.completed .health-header { color: #81c784; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 id="appTitle">O.BAYSAL sigarasız 🚭</h2>
+    
+    <div class="stat-box">
+        <span class="label">Dumansız Geçen Süre</span>
+        <div id="timer" class="flip-clock">
+            <div class="flip-unit">
+                <div class="flip-card" id="days">0</div>
+                <span class="unit-label">GÜN</span>
+            </div>
+            <div class="flip-unit">
+                <div class="flip-card" id="hours">00</div>
+                <span class="unit-label">SAAT</span>
+            </div>
+            <div class="flip-unit">
+                <div class="flip-card" id="minutes">00</div>
+                <span class="unit-label">DK</span>
+            </div>
+            <div class="flip-unit">
+                <div class="flip-card" id="seconds">00</div>
+                <span class="unit-label">SN</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-box">
+        <span class="label">Biriktirilen Paket Sayısı</span>
+        <div id="packageCountContainer" class="flip-clock value"></div>
+    </div>
+
+    <div class="stat-box" style="background-color: #3e2723; border-color: #5d4037;">
+        <span class="label">Tasarruf Edilen Tutar</span>
+        <div id="moneySavedContainer" class="flip-clock value money"></div>
+    </div>
+
+    <div class="health-section">
+        <div class="health-title">❤️ Sağlık İlerlemesi</div>
+        <div id="healthList"></div>
+    </div>
+
+    <p class="motivational-note">"07.02.2026 Sağlığın ve geleceğin için bir yatırım."</p>
+    
+    <button class="settings-btn" onclick="openSettings()">⚙️ Ayarları Düzenle</button>
+</div>
+
+<!-- Ayarlar Modalı -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h3 style="color:white; margin-top:0;">Ayarlar</h3>
+        
+        <div class="form-group">
+            <label>İsim:</label>
+            <input type="text" id="inputName" placeholder="Adınız">
+        </div>
+        <div class="form-group">
+            <label>Bırakma Tarihi ve Saati:</label>
+            <input type="datetime-local" id="inputDate">
+        </div>
+        <div class="form-group">
+            <label>Günlük Paket Sayısı:</label>
+            <input type="number" step="0.1" id="inputPacks">
+        </div>
+        <div class="form-group">
+            <label>Paket Fiyatı (TL):</label>
+            <input type="number" step="0.5" id="inputPrice">
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeSettings()">İptal</button>
+            <button class="btn-save" onclick="saveSettings()">Kaydet</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- AYARLAR ---
+    // Varsayılan değerler (Eğer kayıt yoksa bunlar kullanılır)
+    let kullaniciAdi = "O.BAYSAL";
+    let birakmaTarihi = new Date("2026-02-07T00:00:00");
+    let gunlukPaket = 1.5;
+    let paketFiyati = 105;
+    // ---------------
+    
+    // Sağlık Hedefleri (Süreler milisaniye cinsinden)
+    const healthMilestones = [
+        { label: "Nabız ve tansiyon düzelir", duration: 20 * 60 * 1000 }, // 20 dk
+        { label: "Kandaki oksijen normalleşir", duration: 8 * 60 * 60 * 1000 }, // 8 saat
+        { label: "Karbonmonoksit atılır", duration: 24 * 60 * 60 * 1000 }, // 24 saat
+        { label: "Nikotin vücuttan temizlenir", duration: 48 * 60 * 60 * 1000 }, // 48 saat
+        { label: "Tat ve koku alma düzelir", duration: 72 * 60 * 60 * 1000 }, // 72 saat
+        { label: "Kan dolaşımı iyileşir", duration: 14 * 24 * 60 * 60 * 1000 }, // 2 hafta
+        { label: "Akciğer kapasitesi artar", duration: 90 * 24 * 60 * 60 * 1000 }, // 3 ay
+        { label: "Kalp krizi riski yarıya iner", duration: 365 * 24 * 60 * 60 * 1000 }, // 1 yıl
+    ];
+
+    // Sayfa Yüklendiğinde Ayarları Çek
+    function ayarlariYukle() {
+        const kayitliVeri = localStorage.getItem('sigaraAyarlari');
+        if (kayitliVeri) {
+            const veri = JSON.parse(kayitliVeri);
+            kullaniciAdi = veri.isim;
+            birakmaTarihi = new Date(veri.tarih);
+            gunlukPaket = parseFloat(veri.paket);
+            paketFiyati = parseFloat(veri.fiyat);
+        }
+        // Başlığı güncelle
+        document.getElementById("appTitle").innerText = `${kullaniciAdi} sigarasız 🚭`;
+    }
+
+    function guncelle() {
+        const simdi = new Date();
+        const farkMs = simdi - birakmaTarihi;
+
+        if (farkMs < 0) {
+            document.getElementById("timer").innerHTML = "Gelecek bir tarih seçildi!";
+            return;
+        }
+
+        // Zaman hesaplama
+        const gun = Math.floor(farkMs / (1000 * 60 * 60 * 24));
+        const saat = Math.floor((farkMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const dakika = Math.floor((farkMs % (1000 * 60 * 60)) / (1000 * 60));
+        const saniye = Math.floor((farkMs % (1000 * 60)) / 1000);
+
+        // Zamanı ekrana yaz
+        document.getElementById("days").innerText = gun;
+        document.getElementById("hours").innerText = String(saat).padStart(2, '0');
+        document.getElementById("minutes").innerText = String(dakika).padStart(2, '0');
+        document.getElementById("seconds").innerText = String(saniye).padStart(2, '0');
+
+        // Matematiksel Hesaplama
+        const toplamGun = farkMs / (1000 * 60 * 60 * 24);
+        const toplamPaket = toplamGun * gunlukPaket;
+        const toplamPara = toplamPaket * paketFiyati;
+        
+        // Değerleri flip-card olarak ekrana yazdırma
+        const packageContainer = document.getElementById("packageCountContainer");
+        const moneyContainer = document.getElementById("moneySavedContainer");
+        
+        const packageText = toplamPaket.toFixed(2);
+        const moneyText = toplamPara.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        generateValueFlipper(packageContainer, packageText, "Paket");
+        generateValueFlipper(moneyContainer, moneyText, "TL");
+        
+        // Sağlık barlarını güncelle
+        updateHealthProgress(farkMs);
+    }
+
+    function generateValueFlipper(container, numberString, unitString) {
+        container.innerHTML = ''; // Eski içeriği temizle
+
+        for (const char of numberString) {
+            const el = document.createElement('div');
+            if (!isNaN(parseInt(char))) {
+                el.className = 'flip-card';
+                el.innerText = char;
+            } else {
+                el.className = 'char-separator'; // '.' veya ',' için
+                el.innerText = char;
+            }
+            container.appendChild(el);
+        }
+
+        if (unitString) {
+            const unitEl = document.createElement('div');
+            unitEl.className = 'unit-label-flipper';
+            unitEl.innerText = ` ${unitString}`; // Birimden önce boşluk ekle
+            container.appendChild(unitEl);
+        }
+    }
+
+    // Sağlık Listesini Oluştur
+    function initHealthList() {
+        const container = document.getElementById('healthList');
+        container.innerHTML = '';
+        healthMilestones.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'health-item';
+            div.id = `health-item-${index}`;
+            div.innerHTML = `
+                <div class="health-header">
+                    <span>${item.label}</span>
+                    <span id="health-percent-${index}">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="health-bar-${index}"></div>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function updateHealthProgress(farkMs) {
+        healthMilestones.forEach((item, index) => {
+            let percent = (farkMs / item.duration) * 100;
+            if (percent > 100) percent = 100;
+            if (percent < 0) percent = 0;
+
+            document.getElementById(`health-bar-${index}`).style.width = `${percent}%`;
+            
+            const percentText = percent >= 100 ? "✅ Tamamlandı" : `%${percent.toFixed(1)}`;
+            document.getElementById(`health-percent-${index}`).innerText = percentText;
+
+            const itemEl = document.getElementById(`health-item-${index}`);
+            if (percent >= 100) {
+                itemEl.classList.add('completed');
+            } else {
+                itemEl.classList.remove('completed');
+            }
+        });
+    }
+
+    // --- AYARLAR MENÜSÜ FONKSİYONLARI ---
+    function openSettings() {
+        // Mevcut değerleri inputlara doldur
+        document.getElementById('inputName').value = kullaniciAdi;
+        
+        // Tarih formatını input için ayarla (YYYY-MM-DDTHH:MM)
+        // Yerel saat farkını gözeterek ISO string oluşturma
+        const tzOffset = birakmaTarihi.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(birakmaTarihi - tzOffset)).toISOString().slice(0, 16);
+        document.getElementById('inputDate').value = localISOTime;
+
+        document.getElementById('inputPacks').value = gunlukPaket;
+        document.getElementById('inputPrice').value = paketFiyati;
+
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsModal').style.display = 'none';
+    }
+
+    function saveSettings() {
+        const yeniIsim = document.getElementById('inputName').value;
+        const yeniTarih = document.getElementById('inputDate').value;
+        const yeniPaket = document.getElementById('inputPacks').value;
+        const yeniFiyat = document.getElementById('inputPrice').value;
+
+        if(yeniIsim && yeniTarih && yeniPaket && yeniFiyat) {
+            const ayarlar = {
+                isim: yeniIsim,
+                tarih: yeniTarih, // String olarak kaydet, yüklerken Date objesine çeviririz
+                paket: yeniPaket,
+                fiyat: yeniFiyat
+            };
+            localStorage.setItem('sigaraAyarlari', JSON.stringify(ayarlar));
+            ayarlariYukle(); // Değişkenleri güncelle
+            guncelle(); // Ekranı hemen yenile
+            closeSettings();
+        } else {
+            alert("Lütfen tüm alanları doldurunuz.");
+        }
+    }
+
+    // Başlangıçta ayarları yükle
+    ayarlariYukle();
+    initHealthList(); // Sağlık listesini oluştur
+
+    // Her saniye güncelle
+    setInterval(guncelle, 1000);
+    guncelle();
+
+    // PWA Service Worker Kaydı
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker başarıyla kaydedildi: ', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker kaydı başarısız: ', err);
+                });
+        });
+    }
+</script>
+
+</body>
+</html>
