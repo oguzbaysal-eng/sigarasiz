@@ -310,7 +310,7 @@
 
             document.getElementById(`health-bar-${index}`).style.width = `${percent}%`;
             
-            const percentText = percent >= 100 ? "✅ Tamamlandı" : `%${percent.toFixed(1)}`;
+            const percentText = percent >= 100 ? "✅" : `%${percent.toFixed(1)}`;
             document.getElementById(`health-percent-${index}`).innerText = percentText;
 
             const itemEl = document.getElementById(`health-item-${index}`);
