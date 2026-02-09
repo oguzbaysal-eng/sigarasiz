@@ -105,7 +105,7 @@
     <h2 id="appTitle">O.BAYSAL sigarasız 🚭</h2>
     
     <div class="stat-box">
-        <span class="label">Dumansız Geçen Süre <span id="monthInfo" style="color: #66bb6a; text-transform: none;"></span></span>
+        <span class="label"><span id="statusLabel">Dumansız Geçen Süre</span> <span id="monthInfo" style="color: #66bb6a; text-transform: none;"></span></span>
         <div id="timer" class="flip-clock">
             <div class="flip-unit">
                 <div class="flip-card" id="days">0</div>
@@ -127,7 +127,7 @@
     </div>
 
     <div class="stat-box">
-        <span class="label">Biriktirilen Paket Sayısı</span>
+        <span class="label">Alınmayan Paket Sayısı</span>
         <div id="packageCountContainer" class="flip-clock value"></div>
     </div>
 
@@ -141,7 +141,7 @@
         <div id="healthList"></div>
     </div>
 
-    <p class="motivational-note">"07.02.2026 Sağlığın ve geleceğin için bir yatırım."</p>
+    <p class="motivational-note">"Sağlığın ve geleceğin için önemli bir gün"</p>
     
     <button class="settings-btn" onclick="openSettings()">⚙️ Ayarları Düzenle</button>
 </div>
@@ -208,15 +208,23 @@
         }
         // Başlığı güncelle
         document.getElementById("appTitle").innerText = `${kullaniciAdi} sigarasız 🚭`;
+
+        // Alt notu güncelle (Tarih ile birlikte)
+        const tarihFormatli = birakmaTarihi.toLocaleDateString('tr-TR');
+        document.querySelector(".motivational-note").innerHTML = `( <b>${tarihFormatli}</b>; Sağlığın ve geleceğin için önemli bir gün)`;
     }
 
     function guncelle() {
         const simdi = new Date();
-        const farkMs = simdi - birakmaTarihi;
+        let farkMs = simdi - birakmaTarihi;
+        const isFuture = farkMs < 0;
 
-        if (farkMs < 0) {
-            document.getElementById("timer").innerHTML = "Gelecek bir tarih seçildi!";
-            return;
+        if (isFuture) {
+            farkMs = Math.abs(farkMs); // Geri sayım için pozitife çevir
+            document.getElementById("statusLabel").innerText = "Bırakmaya Kalan Süre";
+            document.getElementById("monthInfo").innerText = "";
+        } else {
+            document.getElementById("statusLabel").innerText = "Dumansız Geçen Süre";
         }
 
         // Zaman hesaplama
@@ -230,6 +238,14 @@
         document.getElementById("hours").innerText = String(saat).padStart(2, '0');
         document.getElementById("minutes").innerText = String(dakika).padStart(2, '0');
         document.getElementById("seconds").innerText = String(saniye).padStart(2, '0');
+
+        // Eğer gelecek tarihse (geri sayımsa) para ve paket hesaplamayı durdur, 0 göster
+        if (isFuture) {
+            generateValueFlipper(document.getElementById("packageCountContainer"), "0.0", "Paket");
+            generateValueFlipper(document.getElementById("moneySavedContainer"), "0", "TL");
+            updateHealthProgress(0);
+            return;
+        }
 
         // Matematiksel Hesaplama
         const toplamGun = farkMs / (1000 * 60 * 60 * 24);
