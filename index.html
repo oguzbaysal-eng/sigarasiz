@@ -105,7 +105,7 @@
     <h2 id="appTitle">O.BAYSAL sigarasız 🚭</h2>
     
     <div class="stat-box">
-        <span class="label">Dumansız Geçen Süre</span>
+        <span class="label">Dumansız Geçen Süre <span id="monthInfo" style="color: #66bb6a; text-transform: none;"></span></span>
         <div id="timer" class="flip-clock">
             <div class="flip-unit">
                 <div class="flip-card" id="days">0</div>
@@ -235,6 +235,14 @@
         const toplamGun = farkMs / (1000 * 60 * 60 * 24);
         const toplamPaket = toplamGun * gunlukPaket;
         const toplamPara = toplamPaket * paketFiyati;
+
+        // Ay Hesaplama (Ortalama 30.44 gün)
+        const toplamAy = toplamGun / 30.44;
+        if (toplamAy >= 1) {
+            document.getElementById("monthInfo").innerText = `: ${toplamAy.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} Ay`;
+        } else {
+            document.getElementById("monthInfo").innerText = "";
+        }
         
         // Değerleri flip-card olarak ekrana yazdırma
         const packageContainer = document.getElementById("packageCountContainer");
