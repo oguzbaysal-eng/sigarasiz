@@ -186,14 +186,14 @@
     
     // Sağlık Hedefleri (Süreler milisaniye cinsinden)
     const healthMilestones = [
-        { label: "Nabız ve tansiyon düzelir", duration: 20 * 60 * 1000 }, // 20 dk
-        { label: "Kandaki oksijen normalleşir", duration: 8 * 60 * 60 * 1000 }, // 8 saat
-        { label: "Karbonmonoksit atılır", duration: 24 * 60 * 60 * 1000 }, // 24 saat
-        { label: "Nikotin vücuttan temizlenir", duration: 48 * 60 * 60 * 1000 }, // 48 saat
-        { label: "Tat ve koku alma düzelir", duration: 72 * 60 * 60 * 1000 }, // 72 saat
-        { label: "Kan dolaşımı iyileşir", duration: 14 * 24 * 60 * 60 * 1000 }, // 2 hafta
-        { label: "Akciğer kapasitesi artar", duration: 90 * 24 * 60 * 60 * 1000 }, // 3 ay
-        { label: "Kalp krizi riski yarıya iner", duration: 365 * 24 * 60 * 60 * 1000 }, // 1 yıl
+        { label: "Nabız ve tansiyon düzelir <i>(20 dk)</i>", duration: 20 * 60 * 1000 },
+        { label: "Kandaki oksijen normalleşir <i>(8 saat)</i>", duration: 8 * 60 * 60 * 1000 },
+        { label: "Karbonmonoksit atılır <i>(24 saat)</i>", duration: 24 * 60 * 60 * 1000 },
+        { label: "Nikotin vücuttan temizlenir <i>(48 saat)</i>", duration: 48 * 60 * 60 * 1000 },
+        { label: "Tat ve koku alma düzelir <i>(72 saat)</i>", duration: 72 * 60 * 60 * 1000 },
+        { label: "Kan dolaşımı iyileşir <i>(2 hafta)</i>", duration: 14 * 24 * 60 * 60 * 1000 },
+        { label: "Akciğer kapasitesi artar <i>(3 ay)</i>", duration: 90 * 24 * 60 * 60 * 1000 },
+        { label: "Kalp krizi riski yarıya iner <i>(1 yıl)</i>", duration: 365 * 24 * 60 * 60 * 1000 },
     ];
 
     // Sayfa Yüklendiğinde Ayarları Çek
@@ -248,8 +248,8 @@
         const packageContainer = document.getElementById("packageCountContainer");
         const moneyContainer = document.getElementById("moneySavedContainer");
         
-        const packageText = toplamPaket.toFixed(2);
-        const moneyText = toplamPara.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const packageText = toplamPaket.toFixed(1);
+        const moneyText = toplamPara.toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 
         generateValueFlipper(packageContainer, packageText, "Paket");
         generateValueFlipper(moneyContainer, moneyText, "TL");
